@@ -39,8 +39,8 @@ export default class ManageUserTasks {
   /**
    * This  get boards assigned for the user
    */
-  async getUserBoards() {
-    return await trello
+  getUserBoards() {
+    return trello
       .getBoards(this.userId)
       .then(boards => boards)
       .catch(err => console.log(err))
@@ -50,21 +50,32 @@ export default class ManageUserTasks {
    * Receive an array of cards returning only cards with due date equals false
    * @param {*} cards
    */
-  getIncompletedCards(boardId) {
+  async getIncompletedCards(boardId) {
     let params = { dueComplete: false }
-    return trello
+    return await trello
       .getCardsOnBoardWithExtraParams(boardId, params)
       .then(res => res)
       .catch(err => console.log(err))
   }
-
+  /**
+   * Method to return all incompleted user tasks
+   * @returns Promisse
+   */
   getUserIncompletedTasks() {
+    let cards = []
     // get all boards of the user
     this.getUserBoards()
       .then(boards => {
         boards.map(board => {
           // get user incompleted cards for every board
           this.getIncompletedCards(board.id)
+            // return only cards that was assigner to the user
+            .then(cards =>
+              cards.filter(card => {
+                if (card.idMembers.includes(this.userId)) return card
+              })
+            )
+            .then(cards => cards.filter(card => card != null))
             .then(cards => {
               cards.forEach(card => this.showCardInfo(card))
             })
