@@ -1,10 +1,10 @@
-import config from "../config"
+const config = require("../../config")
 const Trello = require("trello")
 const trello = new Trello(process.env.TRELLO_KEY, process.env.TRELLO_USER_TOKEN)
 
-export default class ManageUserTasks {
-  constructor(userId) {
-    this.userId = userId
+class ManageUserTasks {
+  constructor() {
+    this.userId = process.env.TRELLO_USERID
   }
 
   /**
@@ -61,27 +61,30 @@ export default class ManageUserTasks {
    * Method to return all incompleted user tasks
    * @returns Promisse
    */
-  getUserIncompletedTasks() {
-    let cards = []
+  async getUserIncompletedTasks() {
+    let result = []
     // get all boards of the user
     this.getUserBoards()
       .then(boards => {
         boards.map(board => {
           // get user incompleted cards for every board
           this.getIncompletedCards(board.id)
-            // return only cards that was assigner to the user
             .then(cards =>
+              // return only cards that was assigner to the user
               cards.filter(card => {
                 if (card.idMembers.includes(this.userId)) return card
               })
             )
             .then(cards => cards.filter(card => card != null))
             .then(cards => {
-              cards.forEach(card => this.showCardInfo(card))
+              result = cards
             })
             .catch(err => console.log(err))
         })
       })
       .catch(err => console.log(err))
+    return await result
   }
 }
+
+module.exports = ManageUserTasks
