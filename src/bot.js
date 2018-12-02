@@ -13,8 +13,9 @@ bot.on("ready", () => {
 })
 
 bot.on("message", msg => {
-  if (msg == "eai") {
-    msg.reply("Eai")
+  if (msg.content.includes("bot")) {
+    console.log("Tão falando de mim")
+    msg.reply("Que que tem eu??")
   }
 })
 // login into discord
