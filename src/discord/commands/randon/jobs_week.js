@@ -3,18 +3,16 @@ const commando = require("discord.js-commando")
 class jobsWeekCommand extends commando.Command {
   constructor(client) {
     super(client, {
-      name: "tramposdasemana",
+      name: "jobsweek",
       group: "random",
-      memberName: "tramposdasemana",
+      memberName: "jobsweek",
       description: "Check for jobs.",
-      examples: ["tramposdasemana"]
+      examples: ["jobsweek"]
     })
   }
 
   async run(message, args) {
-    message.reply(
-      "A agência tá maior parada essa semana. Aproveita e fica de boa aí!"
-    )
+    message.reply("Ops!! Está faltando implementar essa funcionalidade")
   }
 }
 
