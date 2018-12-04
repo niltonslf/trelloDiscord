@@ -12,7 +12,7 @@ class jobsWeekCommand extends commando.Command {
   }
 
   async run(message, args) {
-    message.reply("Ops!! Está faltando implementar essa funcionalidade")
+    message.reply("Ops!! Está faltando implementar essa funcionalidade. :/")
   }
 }
 
