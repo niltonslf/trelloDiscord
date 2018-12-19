@@ -11,7 +11,7 @@ getTaksFrom(boardName), and others...
 - TODO: Send this cards to discord channel every day
 
 
-# Possible improvments
+# Possible improvements
 - Send a report with tasks completed 
 - alert everyone assigned to the card when it is completed
 - "- think about what more i can do"
