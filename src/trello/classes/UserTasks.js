@@ -1,24 +1,10 @@
-const config = require("../../config")
-const Trello = require("trello")
+const config = require('../../config')
+const Trello = require('trello')
 const trello = new Trello(process.env.TRELLO_KEY, process.env.TRELLO_USER_TOKEN)
 
-class ManageUserTasks {
+class UserTasks {
   constructor() {
     this.userId = process.env.TRELLO_USERID
-  }
-
-  /**
-   *  to show card informations
-   * @param {*} card
-   */
-  showCardInfo(card) {
-    console.log(`
-    Task: ${card.name}
-    Completed: ${card.dueComplete}
-    Due Date: ${card.due}
-    Members: ${card.idMembers}
-    Labels: ${card.labels}
-    Task url: ${card.shortUrl}\n`)
   }
 
   /**
@@ -38,10 +24,12 @@ class ManageUserTasks {
   }
   /**
    * This  get boards assigned for the user
+   * @returns prmisse with user boards
    */
   getUserBoards() {
     return trello
       .getBoards(this.userId)
+      .then(boards => boards.filter(board => board.closed == false))
       .then(boards => boards)
       .catch(err => console.log(err))
   }
@@ -50,41 +38,36 @@ class ManageUserTasks {
    * Receive an array of cards returning only cards with due date equals false
    * @param {*} cards
    */
-  async getIncompletedCards(boardId) {
+  getBoardIncompletedCards(boardId) {
     let params = { dueComplete: false }
-    return await trello
+    let result = trello
       .getCardsOnBoardWithExtraParams(boardId, params)
-      .then(res => res)
+      .then(cards => {
+        // returns to the user only not null and assigned to the user
+        return cards.filter(card => {
+          if (card => card != null && card.idMembers.includes(this.userId))
+            return card
+        })
+      })
       .catch(err => console.log(err))
+    return result
   }
   /**
    * Method to return all incompleted user tasks
    * @returns Promisse
    */
-  async getUserIncompletedTasks() {
+  async getUserIncompletedCards() {
     let result = []
-    // get all boards of the user
     this.getUserBoards()
-      .then(boards => {
+      .then(boards =>
         boards.map(board => {
           // get user incompleted cards for every board
-          this.getIncompletedCards(board.id)
-            .then(cards =>
-              // return only cards that was assigner to the user
-              cards.filter(card => {
-                if (card.idMembers.includes(this.userId)) return card
-              })
-            )
-            .then(cards => cards.filter(card => card != null))
-            .then(cards => {
-              result = cards
-            })
-            .catch(err => console.log(err))
+          result.push(this.getBoardIncompletedCards(board.id))
         })
-      })
+      )
       .catch(err => console.log(err))
     return await result
   }
 }
 
-module.exports = ManageUserTasks
+module.exports = UserTasks
