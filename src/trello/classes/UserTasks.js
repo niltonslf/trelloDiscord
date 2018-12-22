@@ -26,11 +26,10 @@ class UserTasks {
    * This  get boards assigned for the user
    * @returns prmisse with user boards
    */
-  getUserBoards() {
-    return trello
+  async getUserBoards() {
+    return await trello
       .getBoards(this.userId)
       .then(boards => boards.filter(board => board.closed == false))
-      .then(boards => boards)
       .catch(err => console.log(err))
   }
 
@@ -38,35 +37,29 @@ class UserTasks {
    * Receive an array of cards returning only cards with due date equals false
    * @param {*} cards
    */
-  getBoardIncompletedCards(boardId) {
-    let params = { dueComplete: false }
-    let result = trello
-      .getCardsOnBoardWithExtraParams(boardId, params)
-      .then(cards => {
-        // returns to the user only not null and assigned to the user
-        return cards.filter(card => {
-          if (card => card != null && card.idMembers.includes(this.userId))
-            return card
-        })
-      })
+  async getIncompletedCardsOnBoard(boardId) {
+    let result = null
+    // get cards without due date incompleted
+    result = this.getUserCards(boardId)
+      .then(cards => cards.filter(card => card.dueComplete === false))
       .catch(err => console.log(err))
-    return result
+    return await result
   }
   /**
    * Method to return all incompleted user tasks
    * @returns Promisse
    */
-  async getUserIncompletedCards() {
-    let result = []
-    this.getUserBoards()
-      .then(boards =>
-        boards.map(board => {
-          // get user incompleted cards for every board
-          result.push(this.getBoardIncompletedCards(board.id))
-        })
+  async getUserIncompletedCardsOnBoard() {
+    const boards = await this.getUserBoards()
+    var result = []
+    for (const board of boards) {
+      result.push(
+        this.getIncompletedCardsOnBoard(board.id)
+          .then(cards => cards.filter(card => Object.keys(card).length))
+          .then(cards => cards)
       )
-      .catch(err => console.log(err))
-    return await result
+    }
+    return await Promise.all(result)
   }
 }
 

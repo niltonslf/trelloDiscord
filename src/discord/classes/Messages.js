@@ -22,15 +22,26 @@ class Messages {
    * @param {*} card
    */
   static textCard(card) {
-    let template = `
+    let labels = []
+
+    for (const label in card.labels) {
+      if (card.labels[label] != '') {
+        labels.push(card.labels[label])
+      }
+    }
+
+    return `
     Task: ${card.name}
     Completed: ${card.dueComplete}
     Due Date: ${card.due}
-    Members: ${card.idMembers}
-    Labels: ${card.labels}
+    Labels: ${labels.join(',')}
     Task url: ${card.shortUrl}`
+  }
 
-    return template
+  static showInfo(data, type) {
+    return `Meow :smiley_cat: !!
+    Você atualmente está em
+    **${data.length}** ${type}. Posso listar todos para voce? (sim/não)`
   }
 }
 

@@ -1,7 +1,6 @@
 const commando = require('discord.js-commando')
-const fetch = require('node-fetch')
 const UserTasks = require('../../../trello/classes/UserTasks')
-
+const Template = require('./../../classes/Messages')
 class MinhasTarefas extends commando.Command {
   constructor(client) {
     super(client, {
@@ -9,23 +8,28 @@ class MinhasTarefas extends commando.Command {
       group: 'random',
       memberName: 'tarefas',
       description: 'user jobs list',
-      examples: ['minhastarefas', 'tarefas'],
+      examples: ['minhastarefas', 'tarefas']
     })
   }
 
   async run(message, args) {
-    let template = `Card: nome do card`
     let incompletedTasks = new UserTasks()
-
-    console.log(incompletedTasks.getUserIncompletedCards())
-
     incompletedTasks
-      .getUserIncompletedCards()
+      .getUserIncompletedCardsOnBoard()
       .then(cards => {
-        console.log(cards)
-        // cards.forEach(card => {
-        //   message.reply(`card.name`)
-        // })
+        //defines message layout
+        let template = Template.showInfo(cards, 'cards')
+        // send a message with general informations
+        message.reply(template)
+        this.client.on('message', msg => {
+          if (msg == 'sim' || msg == 's') {
+            cards.forEach(card => {
+              card.forEach(c => {
+                message.reply(Template.textCard(c))
+              })
+            })
+          }
+        })
       })
       .catch(err => console.log(err))
   }
