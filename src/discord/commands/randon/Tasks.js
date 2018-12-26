@@ -1,21 +1,31 @@
 const commando = require('discord.js-commando')
 const UserTasks = require('../../../trello/classes/UserTasks')
-const Template = require('./../../classes/Messages')
+const Template = require('../../classes/Messages')
+const moment = require('moment')
+
 class MinhasTarefas extends commando.Command {
   constructor(client) {
     super(client, {
-      name: 'minhastarefas',
+      name: 'tasks',
       group: 'random',
-      memberName: 'tarefas',
+      memberName: 'tasks',
       description: 'user jobs list',
-      examples: ['minhastarefas', 'tarefas']
+      examples: ['tasks', 'tasks']
     })
   }
 
   async run(message, args) {
     let incompletedTasks = new UserTasks()
+    let interval = {}
+    if (args.toLowerCase() == 'week') {
+      interval = {
+        startDate: new moment(),
+        endDate: new moment().add(7, 'days')
+      }
+    }
     incompletedTasks
-      .getUserIncompletedCardsOnBoard()
+      .getIncompletedCardsForAllBoards(interval)
+      .then(cards => cards.filter(card => Object.keys(card).length)) // Eliminar os nulos
       .then(cards => {
         //defines message layout
         let template = Template.showInfo(cards, 'cards')

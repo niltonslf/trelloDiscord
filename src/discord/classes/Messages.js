@@ -1,5 +1,5 @@
 const config = require('../../config')
-
+const moment = require('moment')
 class Messages {
   constructor() {}
 
@@ -33,7 +33,7 @@ class Messages {
     return `
     Task: ${card.name}
     Completed: ${card.dueComplete}
-    Due Date: ${card.due}
+    Due Date: ${moment(card.due).format('DD/MM/YYYY')}
     Labels: ${labels.join(',')}
     Task url: ${card.shortUrl}`
   }

@@ -1,6 +1,7 @@
 const config = require('../../config')
 const Trello = require('trello')
 const trello = new Trello(process.env.TRELLO_KEY, process.env.TRELLO_USER_TOKEN)
+const moment = require('moment')
 
 class UserTasks {
   constructor() {
@@ -49,17 +50,33 @@ class UserTasks {
    * Method to return all incompleted user tasks
    * @returns Promisse
    */
-  async getUserIncompletedCardsOnBoard() {
+  async getIncompletedCardsForAllBoards(interval = null) {
     const boards = await this.getUserBoards()
     var result = []
     for (const board of boards) {
       result.push(
-        this.getIncompletedCardsOnBoard(board.id)
+        this.getIncompletedCardsOnBoard(board.id, interval)
           .then(cards => cards.filter(card => Object.keys(card).length))
-          .then(cards => cards)
+          .then(cards =>
+            cards.filter(card => this.verifyInterval(card, interval))
+          )
       )
     }
     return await Promise.all(result)
+  }
+
+  /**
+   * Verificar se um card está entre um intevalo de datas
+   * @param {*} card O card que está sendo analisado
+   * @param {*} interval objeto com a data de inicio e fim
+   */
+  verifyInterval(card, interval) {
+    if (
+      moment(card.due) >= interval.startDate &&
+      moment(card.due) <= interval.endDate
+    )
+      return true
+    return false
   }
 }
 
