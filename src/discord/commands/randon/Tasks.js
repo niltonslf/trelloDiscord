@@ -23,6 +23,12 @@ class MinhasTarefas extends commando.Command {
         endDate: new moment().add(7, 'days')
       }
     }
+    if (args.toLowerCase() == 'late') {
+      interval = {
+        startDate: null,
+        endDate: new moment()
+      }
+    }
     incompletedTasks
       .getIncompletedCardsForAllBoards(interval)
       .then(cards => cards.filter(card => Object.keys(card).length)) // Eliminar os nulos

@@ -71,11 +71,17 @@ class UserTasks {
    * @param {*} interval objeto com a data de inicio e fim
    */
   verifyInterval(card, interval) {
-    if (
-      moment(card.due) >= interval.startDate &&
-      moment(card.due) <= interval.endDate
-    )
-      return true
+    // Cards com due até o hoje
+    if (interval.startDate === null) {
+      if (moment(card.due) <= interval.endDate) return true
+    } else {
+      // cards dentro do intervalo
+      if (
+        moment(card.due) >= interval.startDate &&
+        moment(card.due) <= interval.endDate
+      )
+        return true
+    }
     return false
   }
 }
